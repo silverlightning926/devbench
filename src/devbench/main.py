@@ -21,6 +21,11 @@ def tools(tool: Optional[str] = None, iterations: Optional[str] = None):
     typer.echo("Tool Benchmark")
 
 
+@app.command()
+def all(iterations: Optional[str] = None):
+    typer.echo("Run All Benchmarks")
+
+
 def version_callback(value: bool):
     if value:
         print(f"DevBench v{__version__}")
