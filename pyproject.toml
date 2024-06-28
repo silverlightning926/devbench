@@ -6,11 +6,13 @@ authors = ["Siddharth Rao <siddrao.926@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-typer = {extras = ["all"], version = "^0.12.3"}
+python = ">=3.9,<4.0"
+typer = { extras = ["all"], version = "^0.12.3" }
+rich = "^13.7.1"
+pyfiglet = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^8.2.2"
 
 [tool.poetry.scripts]
 devbench = "devbench.main:app"
