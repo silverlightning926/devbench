@@ -16,6 +16,7 @@ pytest = "^8.2.2"
 
 [tool.poetry.scripts]
 devbench = "devbench.main:app"
+devb = "devbench.main:app"
 
 [build-system]
 requires = ["poetry-core"]
