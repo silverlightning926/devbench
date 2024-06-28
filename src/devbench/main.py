@@ -20,7 +20,7 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
         "C++": ["g++", "--version"],
         "C#": ["dotnet", "--info"],
         "Java": ["javac", "-version"],
-        "Kotlin": ["kotlin", "-version"],
+        "Kotlin": ["kotlinc", "-version"],
         "Rust": ["rustc", "--version"],
         "Go": ["go", "version"],
     },
