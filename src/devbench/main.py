@@ -86,7 +86,7 @@ def compile():
     languages = list(
         DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS["compilation"].keys())
 
-    app = SelectionListApp(languages=languages)
+    app = SelectionListApp(options=languages)
     app.run()
 
     selected_languages = app.get_selected()

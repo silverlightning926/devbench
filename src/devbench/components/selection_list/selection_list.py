@@ -10,10 +10,10 @@ class SelectionListApp(App):
 
     CSS_PATH = "selection_list.tcss"
 
-    def __init__(self, languages: list[str]):
+    def __init__(self, options: list[str]):
         super().__init__()
-        self.languages = languages
-        self.selected_languages = []
+        self.languages = options
+        self.selected_options = []
 
     def compose(self) -> ComposeResult:
         selections = [Selection(language, language.lower().replace(
@@ -30,9 +30,9 @@ class SelectionListApp(App):
     @on(Mount)
     @on(SelectionList.SelectedChanged)
     def update_selected(self) -> None:
-        self.selected_languages = self.query_one(SelectionList).selected
+        self.selected_options = self.query_one(SelectionList).selected
 
-        if len(self.selected_languages) <= 0:
+        if len(self.selected_options) <= 0:
             self.query_one(Button).disabled = True
         else:
             self.query_one(Button).disabled = False
@@ -42,4 +42,4 @@ class SelectionListApp(App):
         self.exit()
 
     def get_selected(self) -> list[str]:
-        return self.selected_languages
+        return self.selected_options
