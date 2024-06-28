@@ -1,7 +1,8 @@
 import typer
 from typing import Optional
+import importlib.metadata
 
-__version__ = "0.1.0-alpha"
+__version__ = importlib.metadata.version('devbench')
 
 app = typer.Typer(name="devbench", add_completion=False)
 
