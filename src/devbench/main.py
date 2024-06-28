@@ -44,7 +44,7 @@ def doctor():
         "npm": ["npm", "--version"],
         "gem": ["gem", "--version"],
         "cargo": ["cargo", "--version"],
-        "Gradle": ["Gradle", "--version"],
+        "Gradle": ["Gradle", "-version"],
         "Docker": ["docker", "--version"],
     }
 
