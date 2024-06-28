@@ -1,7 +1,7 @@
 import typer
-from typing import Optional
+from typing import Optional, Dict, List
 import importlib.metadata
-from rich.progress import Progress
+from rich.progress import Progress, BarColumn, TimeElapsedColumn
 from rich.console import Console
 from rich.table import Table
 from rich import print
@@ -13,13 +13,8 @@ __version__ = importlib.metadata.version('devbench')
 
 app = typer.Typer(name="devbench", add_completion=False)
 
-
-@app.command()
-def doctor():
-    print("[bold purple]DevBench Doctor[/bold purple]")
-    print(f"[purple]DevBench Version v{__version__}[/purple]\n")
-
-    compilation_environments = {
+ENVIRONMENT_CHECKS = {
+    "compilation": {
         "C": ["gcc", "--version"],
         "C++": ["g++", "--version"],
         "C#": ["dotnet", "--info"],
@@ -27,9 +22,8 @@ def doctor():
         "Kotlin": ["kotlin", "-version"],
         "Rust": ["rustc", "--version"],
         "Go": ["go", "version"],
-    }
-
-    runtime_environments = {
+    },
+    "runtime": {
         "C#": ["dotnet", "--version"],
         "Java": ["java", "-version"],
         "Kotlin": ["kotlin", "-version"],
@@ -37,59 +31,51 @@ def doctor():
         "Node.js": ["node", "--version"],
         "Python": ["python", "--version"],
         "Ruby": ["ruby", "--version"],
-    }
-
-    tool_environments = {
+    },
+    "tools": {
         "git": ["git", "--version"],
         "pip": ["pip", "--version"],
         "npm": ["npm", "--version"],
         "gem": ["gem", "--version"],
         "cargo": ["cargo", "--version"],
-        "Gradle": ["Gradle", "-version"],
+        "Gradle": ["gradle", "-version"],
         "Docker": ["docker", "--version"],
-    }
-
-    console = Console()
-
-    compilation_table = Table(
-        title="Compilation Environments", title_justify="left")
-    compilation_table.add_column("Environment")
-    compilation_table.add_column("Status")
-    check_environments(compilation_environments,
-                       compilation_table, console)
-
-    runtime_table = Table(title="\nRuntime Environments", title_justify="left")
-    runtime_table.add_column("Environment")
-    runtime_table.add_column("Status")
-    check_environments(runtime_environments, runtime_table, console)
-
-    runtime_table = Table(title="\nTool Environments", title_justify="left")
-    runtime_table.add_column("Environment")
-    runtime_table.add_column("Status")
-    check_environments(tool_environments, runtime_table, console)
+    },
+}
 
 
-def check_environments(environments, table, console):
-    with Progress(transient=True) as progress:
+def check_environment(cmd: List[str]) -> str:
+    try:
+        subprocess.run(cmd, env=os.environ,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return "✅"
+    except FileNotFoundError:
+        return "❌"
+
+
+def check_environments(env_type: str, table: Table, console: Console):
+    with Progress(BarColumn(), TimeElapsedColumn(), transient=True) as progress:
         task = progress.add_task(
-            "[green]Checking...", total=len(environments))
-
-        for env, cmd in environments.items():
-            progress.update(
-                task, description=f"[green]Checking {env}...")
-
-            try:
-                subprocess.run(
-                    cmd, env=os.environ, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-                status = "✅"
-            except FileNotFoundError:
-                status = "❌"
-
+            f"[green]Checking {env_type}...", total=len(ENVIRONMENT_CHECKS[env_type]))
+        for env, cmd in ENVIRONMENT_CHECKS[env_type].items():
+            status = check_environment(cmd)
             table.add_row(env, status)
             progress.update(task, advance=1)
 
-    console.print(table)
+
+@app.command()
+def doctor():
+    print("[bold purple]DevBench Doctor[/bold purple]")
+    print(f"[purple]DevBench Version v{__version__}[/purple]\n")
+
+    console = Console()
+    for env_type in ENVIRONMENT_CHECKS:
+        table = Table(title=f"\n{env_type.capitalize()
+                                 } Environments", title_justify="left")
+        table.add_column("Environment")
+        table.add_column("Status")
+        check_environments(env_type, table, console)
+        console.print(table)
 
 
 @app.command()
