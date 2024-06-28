@@ -41,5 +41,5 @@ class SelectionListApp(App):
     def confirm_selection(self) -> None:
         self.exit()
 
-    def get_selected_languages(self) -> list[str]:
+    def get_selected(self) -> list[str]:
         return self.selected_languages

@@ -89,7 +89,7 @@ def compile():
     app = SelectionListApp(languages=languages)
     app.run()
 
-    selected_languages = app.get_selected_languages()
+    selected_languages = app.get_selected()
 
     # TODO: Implement Benchmarking Based on Selected Languages
 
