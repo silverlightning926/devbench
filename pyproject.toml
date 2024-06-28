@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "devbench"
-version = "0.1.0"
+version = "0.1.0-alpha"
 description = "A benchmark suite for developers to evaluate the performace of different development tools, frameworks, and languages on their machine."
 authors = ["Siddharth Rao <siddrao.926@gmail.com>"]
 readme = "README.md"
