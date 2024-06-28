@@ -8,6 +8,11 @@ app = typer.Typer(name="devbench", add_completion=False)
 
 
 @app.command()
+def doctor():
+    typer.echo("Doctor Command")
+
+
+@app.command()
 def compile(language: Optional[str] = None, test: Optional[str] = None, iterations: Optional[str] = None):
     typer.echo("Compilation Benchmark")
 
