@@ -1,0 +1,18 @@
+Vertical {
+  align: center middle;
+  padding: 1;
+}
+
+SelectionList {
+  padding: 1;
+  border: solid #CF9FFF;
+  align-horizontal: center;
+  width: 80%;
+  color: #CF9FFF;
+}
+
+Button {
+  margin: 1;
+  width: 80%;
+  align-horizontal: center;
+}

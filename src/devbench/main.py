@@ -8,6 +8,7 @@ from rich import print
 import subprocess
 import os
 from pyfiglet import Figlet
+from devbench.components.selection_list.selection_list import SelectionListApp
 
 __version__ = importlib.metadata.version('devbench')
 
@@ -79,8 +80,18 @@ def doctor():
 
 
 @app.command()
-def compile(language: Optional[str] = None, test: Optional[str] = None, iterations: Optional[str] = None):
+def compile():
     typer.echo("Compilation Benchmark")
+
+    languages = list(
+        DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS["compilation"].keys())
+
+    app = SelectionListApp(languages=languages)
+    app.run()
+
+    selected_languages = app.get_selected_languages()
+
+    # TODO: Implement Benchmarking Based on Selected Languages
 
 
 @app.command()
