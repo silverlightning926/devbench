@@ -13,7 +13,7 @@ __version__ = importlib.metadata.version('devbench')
 
 app = typer.Typer(name="devbench", add_completion=False)
 
-ENVIRONMENT_CHECKS = {
+DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
     "compilation": {
         "C": ["gcc", "--version"],
         "C++": ["g++", "--version"],
@@ -56,8 +56,8 @@ def check_environment(cmd: List[str]) -> str:
 def check_environments(env_type: str, table: Table, console: Console):
     with Progress(BarColumn(), TimeElapsedColumn(), transient=True) as progress:
         task = progress.add_task(
-            f"[green]Checking {env_type}...", total=len(ENVIRONMENT_CHECKS[env_type]))
-        for env, cmd in ENVIRONMENT_CHECKS[env_type].items():
+            f"[green]Checking {env_type}...", total=len(DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type]))
+        for env, cmd in DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type].items():
             status = check_environment(cmd)
             table.add_row(env, status)
             progress.update(task, advance=1)
@@ -69,7 +69,7 @@ def doctor():
     print(f"[purple]DevBench Version v{__version__}[/purple]\n")
 
     console = Console()
-    for env_type in ENVIRONMENT_CHECKS:
+    for env_type in DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS:
         table = Table(title=f"\n{env_type.capitalize()
                                  } Environments", title_justify="left")
         table.add_column("Environment")
