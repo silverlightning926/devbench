@@ -1,3 +1,7 @@
+Screen {
+  background: #000000;
+}
+
 Vertical {
   align: center middle;
   padding: 1;
