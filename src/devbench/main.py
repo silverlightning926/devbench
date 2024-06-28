@@ -7,6 +7,7 @@ from rich.table import Table
 from rich import print
 import subprocess
 import os
+from pyfiglet import Figlet
 
 __version__ = importlib.metadata.version('devbench')
 
@@ -113,7 +114,9 @@ def all(iterations: Optional[str] = None):
 
 def version_callback(value: bool):
     if value:
-        print(f"DevBench v{__version__}")
+        f = Figlet(font="slant")
+        print(f.renderText("DevBench"))
+        print(f"Version [purple]{__version__}[purple]")
         raise typer.Exit()
 
 
