@@ -116,7 +116,7 @@ def version_callback(value: bool):
     if value:
         f = Figlet(font="slant")
         print(f.renderText("DevBench"))
-        print(f"Version [purple]{__version__}[purple]")
+        print(f"[purple]Version {__version__}[purple]")
         raise typer.Exit()
 
 
