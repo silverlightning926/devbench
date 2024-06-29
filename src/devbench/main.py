@@ -142,7 +142,7 @@ def compile(iterations: int = 15, warmup: int = 3):
             table.add_row(language,
                           f"{sum(times) / len(times):.6f}",
                           str(iterations),
-                          f"{min(times):.6f}"
+                          f"{min(times):.6f}",
                           f"{max(times):.6f}",
                           f"{statistics.stdev(times):.6f}",
                           f"{statistics.variance(times):.6f}")
