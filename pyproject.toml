@@ -7,6 +7,7 @@ name = "devbench"
 version = "0.0.0"
 description = "A benchmark suite for developers to evaluate the performace of different development tools, frameworks, and languages on their machine."
 authors = ["Siddharth Rao <siddrao.926@gmail.com>"]
+license = "MIT"
 readme = "README.md"
 
 [tool.poetry-dynamic-versioning]
@@ -15,8 +16,8 @@ vcs = "git"
 tag-branch = "main"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<4.0"
-typer = { extras = ["all"], version = "^0.12.3" }
+python = "^3.8"
+typer = "^0.12.3"
 rich = "^13.7.1"
 pyfiglet = "^1.0.2"
 textual = "^0.71.0"
