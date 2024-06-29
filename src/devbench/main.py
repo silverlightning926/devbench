@@ -86,7 +86,7 @@ def doctor():
 # region Compilation Benchmark
 
 
-def _clean_build_environment():
+def _clean_build_artifacts():
     build_artifacts_path = './samples/build_artifacts'
     if os.path.exists(build_artifacts_path):
         for file in os.listdir(build_artifacts_path):
@@ -123,14 +123,14 @@ def _compile_benchmark_language(language: str, warmup: int, iterations: int, tab
     times = []
     for _ in range(warmup):
         _compile_benchmark_command(COMPILATION_BENCHMARK_COMMANDS[language])
-        _clean_build_environment()
+        _clean_build_artifacts()
         progress.update(task, advance=1, description=f"[green]Compiling {
                         language} (Warmup) {_ + 1}/{warmup}")
 
     for _ in range(iterations):
         times.append(_measure_benchmark_time(
             COMPILATION_BENCHMARK_COMMANDS[language]))
-        _clean_build_environment()
+        _clean_build_artifacts()
         progress.update(task, advance=1, description=f"[green]Compiling {
                         language} (Iteration) {_ + 1}/{iterations}")
 
@@ -151,7 +151,7 @@ def _compile_benchmark_languages(languages: list[str], warmup: int, iterations: 
     table.add_column("Standard Deviation")
     table.add_column("Variance")
 
-    _clean_build_environment()
+    _clean_build_artifacts()
 
     with Progress(TextColumn(text_format="[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
         task = progress.add_task(
