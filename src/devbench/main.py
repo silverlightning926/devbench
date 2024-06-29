@@ -1,7 +1,7 @@
 import typer
 from typing import Optional
 import importlib.metadata
-from rich.progress import Progress, BarColumn, TimeElapsedColumn, TextColumn
+from rich.progress import Progress, BarColumn, TimeElapsedColumn, TextColumn, TaskID
 from rich.table import Table
 from rich import print
 import subprocess
@@ -83,8 +83,10 @@ def doctor():
         check_environments(env_type, table)
         print(table)
 
+# region Compilation Benchmark
 
-def clean_build_environment():
+
+def _clean_build_environment():
     build_artifacts_path = './samples/build_artifacts'
     if os.path.exists(build_artifacts_path):
         for file in os.listdir(build_artifacts_path):
@@ -95,16 +97,50 @@ def clean_build_environment():
                 shutil.rmtree(file_path)
 
 
-@app.command()
-def compile(iterations: int = 15, warmup: int = 3):
+def _compile_benchmark_command(command: list[str]):
+    subprocess.run(command, env=os.environ,
+                   cwd="./samples", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    languages = list(COMPILATION_BENCHMARK_COMMANDS.keys())
 
-    app = SelectionListApp(options=languages,
-                           title="Choose a Language to Benchmark")
-    app.run()
+def _measure_benchmark_time(command: list[str]):
+    start = time.perf_counter_ns()
+    _compile_benchmark_command(command)
+    end = time.perf_counter_ns()
+    return (end - start) / 1e9
 
-    selected_languages = app.get_selected()
+
+def _add_compile_benchmark_result_to_table(table: Table, language: str, warmup: int, iterations: int, times: list[float]):
+    table.add_row(language,
+                  f"({warmup}) + {iterations}",
+                  f"{sum(times) / len(times):.6f}",
+                  f"{min(times):.6f}",
+                  f"{max(times):.6f}",
+                  f"{statistics.stdev(times):.6f}",
+                  f"{statistics.variance(times):.6f}")
+
+
+def _compile_benchmark_language(language: str, warmup: int, iterations: int, table: Table, progress: Progress, task: TaskID):
+    times = []
+    for _ in range(warmup):
+        _compile_benchmark_command(COMPILATION_BENCHMARK_COMMANDS[language])
+        _clean_build_environment()
+        progress.update(task, advance=1, description=f"[green]Compiling {
+                        language} (Warmup) {_ + 1}/{warmup}")
+
+    for _ in range(iterations):
+        times.append(_measure_benchmark_time(
+            COMPILATION_BENCHMARK_COMMANDS[language]))
+        _clean_build_environment()
+        progress.update(task, advance=1, description=f"[green]Compiling {
+                        language} (Iteration) {_ + 1}/{iterations}")
+
+    _add_compile_benchmark_result_to_table(
+        table, language, warmup, iterations, times)
+
+
+def _compile_benchmark_languages(languages: list[str], warmup: int, iterations: int):
+
+    Table(title="Compilation Benchmark", title_justify="left")
 
     table = Table(title="Compilation Benchmark", title_justify="left")
     table.add_column("Language (Compiler)")
@@ -115,39 +151,38 @@ def compile(iterations: int = 15, warmup: int = 3):
     table.add_column("Standard Deviation")
     table.add_column("Variance")
 
-    clean_build_environment()
+    _clean_build_environment()
 
     with Progress(TextColumn(text_format="[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
         task = progress.add_task(
-            f"[green]Compiling", total=(len(selected_languages) * (iterations + warmup)))
-        for language in selected_languages:
-            for _ in range(warmup):
-                subprocess.run(COMPILATION_BENCHMARK_COMMANDS[language], env=os.environ,
-                               cwd="./samples", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                clean_build_environment()
-                progress.update(task, advance=1,
-                                description=f"[green]Compiling {language} - Warmup {_ + 1}/{warmup}")
-
-            times = []
-            for _ in range(iterations):
-                start = time.perf_counter_ns()
-                subprocess.run(COMPILATION_BENCHMARK_COMMANDS[language], env=os.environ,
-                               cwd="./samples", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                end = time.perf_counter_ns()
-                times.append((end - start) / 1e9)
-                clean_build_environment()
-                progress.update(task, advance=1,
-                                description=f"[green]Compiling {language} - Iteration {_ + 1}/{iterations}")
-
-            table.add_row(language,
-                          f"({warmup}) + {iterations}",
-                          f"{sum(times) / len(times):.6f}",
-                          f"{min(times):.6f}",
-                          f"{max(times):.6f}",
-                          f"{statistics.stdev(times):.6f}",
-                          f"{statistics.variance(times):.6f}")
+            f"[green]Compiling", total=(len(languages) * (iterations + warmup)))
+        for language in languages:
+            _compile_benchmark_language(
+                language, warmup, iterations, table, progress, task)
 
     print(table)
+
+
+def _query_languages_to_compile_benchmark():
+    languages = list(COMPILATION_BENCHMARK_COMMANDS.keys())
+
+    app = SelectionListApp(options=languages,
+                           title="Choose a Language to Benchmark")
+    app.run()
+
+    return app.get_selected()
+
+
+def run_compile_benchmark(iterations: int, warmup: int):
+    languages = _query_languages_to_compile_benchmark()
+    _compile_benchmark_languages(languages, warmup, iterations)
+
+
+@app.command()
+def compile(iterations: int = 15, warmup: int = 3):
+    run_compile_benchmark(iterations, warmup)
+
+# endregion
 
 
 @ app.command()
