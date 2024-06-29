@@ -16,6 +16,9 @@ __version__ = importlib.metadata.version('devbench')
 
 app = typer.Typer(name="devbench", add_completion=False)
 
+# region Doctor Command
+
+
 DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
     "compilation": {
         "C (gcc)": ["gcc", "--version"],
@@ -40,6 +43,57 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
     },
 }
 
+
+def _check_env_command(cmd: list[str]):
+    subprocess.run(cmd, env=os.environ, stdout=subprocess.DEVNULL,
+                   stderr=subprocess.DEVNULL, check=True)
+
+
+def _check_env(cmd: list[str]) -> str:
+    try:
+        _check_env_command(cmd)
+        return "✅"
+    except FileNotFoundError:
+        return "❌"
+
+
+def _add_check_env_result_to_table(table: Table, env: str, status: str):
+    table.add_row(env, status)
+
+
+def _check_envs(env_type: str, table: Table):
+    with Progress(TextColumn("[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
+        task = progress.add_task(f"[green]Checking {env_type}...", total=len(
+            DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type]))
+        for _, (env, cmd) in enumerate(DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type].items(), start=1):
+            status = _check_env(cmd)
+            _add_check_env_result_to_table(table, env, status)
+            progress.update(task, advance=1, description=f"[green]Checking {
+                            env_type}: {env}")
+
+
+def _run_envs_check():
+    for env_type in DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS:
+        table = Table(title=f"\n{env_type.capitalize()
+                                 } Environments", title_justify="left")
+        table.add_column("Environment")
+        table.add_column("Status")
+        _check_envs(env_type, table)
+        print(table)
+
+
+@ app.command()
+def doctor():
+    print("[bold purple]DevBench Doctor[/bold purple]")
+    print(f"[purple]DevBench Version v{__version__}[/purple]\n")
+
+    _run_envs_check()
+
+# endregion
+
+# region Compilation Benchmark Command
+
+
 COMPILATION_BENCHMARK_COMMANDS = {
     "C (gcc)": ["gcc", "-o", "build_artifacts/hello_world_c", "c/hello_world.c"],
     "C++ (g++)": ["g++", "-o", "build_artifacts/hello_world_cpp", "cpp/hello_world.cpp"],
@@ -48,42 +102,6 @@ COMPILATION_BENCHMARK_COMMANDS = {
     "Rust (rustc)": ["rustc", "-o", "build_artifacts/hello_world", "rust/hello_world.rs"],
     "Go (gc)": ["go", "build", "-o", "build_artifacts/hello_world_go", "go/hello_world.go"],
 }
-
-
-def check_environment(cmd: list[str]) -> str:
-    try:
-        subprocess.run(cmd, env=os.environ,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return "✅"
-    except FileNotFoundError:
-        return "❌"
-
-
-def check_environments(env_type: str, table: Table):
-    with Progress(TextColumn("[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
-        task = progress.add_task(f"[green]Checking {env_type}...", total=len(
-            DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type]))
-        for _, (env, cmd) in enumerate(DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type].items(), start=1):
-            status = check_environment(cmd)
-            table.add_row(env, status)
-            progress.update(task, advance=1, description=f"[green]Checking {
-                            env_type}: {env}")
-
-
-@app.command()
-def doctor():
-    print("[bold purple]DevBench Doctor[/bold purple]")
-    print(f"[purple]DevBench Version v{__version__}[/purple]\n")
-
-    for env_type in DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS:
-        table = Table(title=f"\n{env_type.capitalize()
-                                 } Environments", title_justify="left")
-        table.add_column("Environment")
-        table.add_column("Status")
-        check_environments(env_type, table)
-        print(table)
-
-# region Compilation Benchmark
 
 
 def _clean_build_artifacts():
@@ -140,9 +158,8 @@ def _compile_benchmark_language(language: str, warmup: int, iterations: int, tab
 
 def _compile_benchmark_languages(languages: list[str], warmup: int, iterations: int):
 
-    Table(title="Compilation Benchmark", title_justify="left")
-
-    table = Table(title="Compilation Benchmark", title_justify="left")
+    table = Table(
+        title="[bold purple]DevBench Compilation Benchmark[/bold purple]", title_justify="left")
     table.add_column("Language (Compiler)")
     table.add_column("(Warmup) + Iterations")
     table.add_column("Average Time (s)")
@@ -173,14 +190,14 @@ def _query_languages_to_compile_benchmark():
     return app.get_selected()
 
 
-def run_compile_benchmark(iterations: int, warmup: int):
+def run_compile_benchmarks(iterations: int, warmup: int):
     languages = _query_languages_to_compile_benchmark()
     _compile_benchmark_languages(languages, warmup, iterations)
 
 
-@app.command()
+@ app.command()
 def compile(iterations: int = 15, warmup: int = 3):
-    run_compile_benchmark(iterations, warmup)
+    run_compile_benchmarks(iterations, warmup)
 
 # endregion
 
