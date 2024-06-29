@@ -139,8 +139,13 @@ def compile(iterations: int = 10, warmup: int = 3):
                 progress.update(task, advance=1,
                                 description=f"[green]Compiling {language} - Iteration {_ + 1}/{iterations}")
 
-            table.add_row(language, str(sum(times) / len(times)), str(iterations), str(min(times)),
-                          str(max(times)), str(statistics.stdev(times)), str(statistics.variance(times)))
+            table.add_row(language,
+                          f"{sum(times) / len(times):.6f}",
+                          str(iterations),
+                          f"{min(times):.6f}"
+                          f"{max(times):.6f}",
+                          f"{statistics.stdev(times):.6f}",
+                          f"{statistics.variance(times):.6f}")
 
     print(table)
 
