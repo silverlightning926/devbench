@@ -6,7 +6,7 @@ from textual.events import Mount
 from textual.widgets.selection_list import Selection
 
 
-class SelectionListApp(App):
+class SelectionList(App):
 
     CSS_PATH = "selection_list.tcss"
 
