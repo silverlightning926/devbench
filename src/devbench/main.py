@@ -49,7 +49,7 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
 COMPILATION_BENCHMARK_COMMANDS = {
     "C": ["gcc", "-o", "build_artifacts/hello_world_c", "c/hello_world.c"],
     "C++": ["g++", "-o", "build_artifacts/hello_world_cpp", "cpp/hello_world.cpp"],
-    "C#": ["dotnet", "build", "csharp/hello_world.csproj", "-o", "build_artifacts"],
+    "C#": ["dotnet", "build", "-o", "csharp/hello_world.csproj", "build_artifacts"],
     "Java": ["javac", "-d", "build_artifacts", "java/hello_world.java"],
     "Kotlin": ["kotlinc", "-d", "build_artifacts", "kotlin/hello_world.kt"],
     "Rust": ["rustc", "-o", "build_artifacts/hello_world", "rust/hello_world.rs"],
