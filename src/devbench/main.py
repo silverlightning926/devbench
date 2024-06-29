@@ -18,12 +18,12 @@ app = typer.Typer(name="devbench", add_completion=False)
 
 DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
     "compilation": {
-        "C": ["gcc", "--version"],
-        "C++": ["g++", "--version"],
-        "C#": ["dotnet", "--info"],
-        "Java": ["javac", "-version"],
-        "Rust": ["rustc", "--version"],
-        "Go": ["go", "version"],
+        "C (gcc)": ["gcc", "--version"],
+        "C++ (g++)": ["g++", "--version"],
+        "C# (dotnet)": ["dotnet", "--info"],
+        "Java (javac)": ["javac", "-version"],
+        "Rust (rustc)": ["rustc", "--version"],
+        "Go (go)": ["go", "version"],
     },
     "runtime": {
         "C#": ["dotnet", "--version"],
@@ -96,7 +96,7 @@ def clean_build_environment():
 
 
 @app.command()
-def compile(iterations: int = 10, warmup: int = 3):
+def compile(iterations: int = 15, warmup: int = 3):
 
     languages = list(COMPILATION_BENCHMARK_COMMANDS.keys())
 
