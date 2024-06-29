@@ -107,7 +107,7 @@ def compile(iterations: int = 15, warmup: int = 3):
     selected_languages = app.get_selected()
 
     table = Table(title="Compilation Benchmark", title_justify="left")
-    table.add_column("Language")
+    table.add_column("Language (Compiler)")
     table.add_column("Average Time (s)")
     table.add_column("Iterations")
     table.add_column("Minimum Time (s)")
