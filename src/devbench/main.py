@@ -43,7 +43,7 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
 COMPILATION_BENCHMARK_COMMANDS = {
     "C": ["gcc", "-o", "build_artifacts/hello_world_c", "c/hello_world.c"],
     "C++": ["g++", "-o", "build_artifacts/hello_world_cpp", "cpp/hello_world.cpp"],
-    "C#": ["dotnet", "build", "-o", "csharp/hello_world.csproj", "build_artifacts"],
+    "C#": ["dotnet", "build", "-o", "build_artifacts", "csharp/hello_world.csproj"],
     "Java": ["javac", "-d", "build_artifacts", "java/hello_world.java"],
     "Rust": ["rustc", "-o", "build_artifacts/hello_world", "rust/hello_world.rs"],
     "Go": ["go", "build", "-o", "build_artifacts/hello_world_go", "go/hello_world.go"],
@@ -132,7 +132,7 @@ def compile(iterations: int = 10, warmup: int = 3):
             for _ in range(iterations):
                 start = time.perf_counter_ns()
                 subprocess.run(COMPILATION_BENCHMARK_COMMANDS[language], env=os.environ,
-                               cwd="./samples", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                               cwd="./samples")
                 end = time.perf_counter_ns()
                 times.append((end - start) / 1e9)
                 clean_build_environment()
