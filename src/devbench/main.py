@@ -60,20 +60,21 @@ COMPILATION_BENCHMARK_COMMANDS = {
 def check_environment(cmd: list[str]) -> str:
     try:
         subprocess.run(cmd, env=os.environ,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return "✅"
     except FileNotFoundError:
         return "❌"
 
 
 def check_environments(env_type: str, table: Table):
-    with Progress(TextColumn(text_format="[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
-        task = progress.add_task(
-            f"[green]Checking {env_type}...", total=len(DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type]))
-        for env, cmd in DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type].items():
+    with Progress(TextColumn("[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
+        task = progress.add_task(f"[green]Checking {env_type}...", total=len(
+            DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type]))
+        for i, (env, cmd) in enumerate(DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type].items(), start=1):
             status = check_environment(cmd)
             table.add_row(env, status)
-            progress.update(task, advance=1)
+            progress.update(task, advance=1, description=f"[green]Checking {
+                            env_type}: {env}")
 
 
 @app.command()
