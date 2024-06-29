@@ -1,12 +1,14 @@
 import typer
-from typing import Optional, Dict, List
+from typing import Optional
 import importlib.metadata
-from rich.progress import Progress, BarColumn, TimeElapsedColumn
-from rich.console import Console
+from rich.progress import Progress, BarColumn, TimeElapsedColumn, TextColumn
 from rich.table import Table
 from rich import print
 import subprocess
+import time
+import statistics
 import os
+import shutil
 from pyfiglet import Figlet
 from devbench.components.selection_list.selection_list_app import SelectionListApp
 
@@ -45,17 +47,17 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
 }
 
 COMPILATION_BENCHMARK_COMMANDS = {
-    "C": ["gcc", "-c", "hello_world.c"],
-    "C++": ["g++", "-c", "hello_world.cpp"],
-    "C#": ["dotnet", "build"],
-    "Java": ["javac", "hello_world.java"],
-    "Kotlin": ["kotlinc", "hello_world.kt"],
-    "Rust": ["rustc", "hello_world.rs"],
-    "Go": ["go", "build", "hello_world.go"],
+    "C": ["gcc", "-o", "build_artifacts/hello_world_c", "c/hello_world.c"],
+    "C++": ["g++", "-o", "build_artifacts/hello_world_cpp", "cpp/hello_world.cpp"],
+    "C#": ["dotnet", "build", "csharp/hello_world.csproj", "-o", "build_artifacts"],
+    "Java": ["javac", "-d", "build_artifacts", "java/hello_world.java"],
+    "Kotlin": ["kotlinc", "-d", "build_artifacts", "kotlin/hello_world.kt"],
+    "Rust": ["rustc", "-o", "build_artifacts/hello_world", "rust/hello_world.rs"],
+    "Go": ["go", "build", "-o", "build_artifacts/hello_world_go", "go/hello_world.go"],
 }
 
 
-def check_environment(cmd: List[str]) -> str:
+def check_environment(cmd: list[str]) -> str:
     try:
         subprocess.run(cmd, env=os.environ,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -64,8 +66,8 @@ def check_environment(cmd: List[str]) -> str:
         return "❌"
 
 
-def check_environments(env_type: str, table: Table, console: Console):
-    with Progress(BarColumn(), TimeElapsedColumn(), transient=True) as progress:
+def check_environments(env_type: str, table: Table):
+    with Progress(TextColumn(text_format="[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
         task = progress.add_task(
             f"[green]Checking {env_type}...", total=len(DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type]))
         for env, cmd in DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type].items():
@@ -79,19 +81,28 @@ def doctor():
     print("[bold purple]DevBench Doctor[/bold purple]")
     print(f"[purple]DevBench Version v{__version__}[/purple]\n")
 
-    console = Console()
     for env_type in DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS:
         table = Table(title=f"\n{env_type.capitalize()
                                  } Environments", title_justify="left")
         table.add_column("Environment")
         table.add_column("Status")
-        check_environments(env_type, table, console)
-        console.print(table)
+        check_environments(env_type, table)
+        print(table)
+
+
+def clean_build_environment():
+    build_artifacts_path = './samples/build_artifacts'
+    if os.path.exists(build_artifacts_path):
+        for file in os.listdir(build_artifacts_path):
+            file_path = os.path.join(build_artifacts_path, file)
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
 
 
 @app.command()
-def compile(iterations: int = 5):
-    typer.echo("Compilation Benchmark")
+def compile(iterations: int = 10):
 
     languages = list(COMPILATION_BENCHMARK_COMMANDS.keys())
 
@@ -101,18 +112,49 @@ def compile(iterations: int = 5):
 
     selected_languages = app.get_selected()
 
+    table = Table(title="Compilation Benchmark", title_justify="left")
+    table.add_column("Language")
+    table.add_column("Average Time (s)")
+    table.add_column("Iterations")
+    table.add_column("Minimum Time (s)")
+    table.add_column("Maximum Time (s)")
+    table.add_column("Standard Deviation")
+    table.add_column("Variance")
 
-@app.command()
+    clean_build_environment()
+
+    with Progress(TextColumn(text_format="[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
+        task = progress.add_task(
+            f"[green]Compiling", total=len(selected_languages) * iterations)
+        for language in selected_languages:
+            progress.update(task, advance=1)
+            times = []
+            for _ in range(iterations):
+                progress.update(task, advance=1,
+                                description=f"[green]Compiling {language} - Iteration {_ + 1}/{iterations}")
+                start = time.perf_counter_ns()
+                subprocess.run(COMPILATION_BENCHMARK_COMMANDS[language], env=os.environ,
+                               cwd="./samples", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                end = time.perf_counter_ns()
+                times.append((end - start) / 1e9)
+                clean_build_environment()
+            table.add_row(language, str(sum(times) / len(times)), str(iterations), str(min(times)),
+                          str(max(times)), str(statistics.stdev(times)), str(statistics.variance(times)))
+
+    print(table)
+
+
+@ app.command()
 def runtime(language: Optional[str] = None, test: Optional[str] = None, iterations: Optional[str] = None):
     typer.echo("Runtime Benchmark")
 
 
-@app.command()
+@ app.command()
 def tools(tool: Optional[str] = None, iterations: Optional[str] = None):
     typer.echo("Tool Benchmark")
 
 
-@app.command()
+@ app.command()
 def all(iterations: Optional[str] = None):
     typer.echo("Run All Benchmarks")
 
@@ -125,7 +167,7 @@ def version_callback(value: bool):
         raise typer.Exit()
 
 
-@app.callback()
+@ app.callback()
 def main(
     version: bool = typer.Option(
         None, "--version", callback=version_callback, is_eager=True
