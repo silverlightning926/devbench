@@ -1,16 +1,25 @@
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
+
 [tool.poetry]
 name = "devbench"
-version = "0.1.0-alpha"
+version = "0.0.0"
 description = "A benchmark suite for developers to evaluate the performace of different development tools, frameworks, and languages on their machine."
 authors = ["Siddharth Rao <siddrao.926@gmail.com>"]
 readme = "README.md"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+tag-branch = "main"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 typer = { extras = ["all"], version = "^0.12.3" }
 rich = "^13.7.1"
 pyfiglet = "^1.0.2"
-textual = "^0.70.0"
+textual = "^0.71.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.2.2"
@@ -18,7 +27,3 @@ pytest = "^8.2.2"
 [tool.poetry.scripts]
 devbench = "devbench.main:app"
 devb = "devbench.main:app"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
