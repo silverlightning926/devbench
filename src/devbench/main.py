@@ -132,7 +132,7 @@ def compile(iterations: int = 10, warmup: int = 3):
             for _ in range(iterations):
                 start = time.perf_counter_ns()
                 subprocess.run(COMPILATION_BENCHMARK_COMMANDS[language], env=os.environ,
-                               cwd="./samples")
+                               cwd="./samples", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 end = time.perf_counter_ns()
                 times.append((end - start) / 1e9)
                 clean_build_environment()
