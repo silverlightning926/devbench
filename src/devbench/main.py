@@ -22,14 +22,12 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
         "C++": ["g++", "--version"],
         "C#": ["dotnet", "--info"],
         "Java": ["javac", "-version"],
-        "Kotlin": ["kotlinc", "-version"],
         "Rust": ["rustc", "--version"],
         "Go": ["go", "version"],
     },
     "runtime": {
         "C#": ["dotnet", "--version"],
         "Java": ["java", "-version"],
-        "Kotlin": ["kotlin", "-version"],
         "Go": ["go", "version"],
         "Node.js": ["node", "--version"],
         "Python": ["python", "--version"],
@@ -37,10 +35,6 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
     },
     "tools": {
         "git": ["git", "--version"],
-        "pip": ["pip", "--version"],
-        "npm": ["npm", "--version"],
-        "gem": ["gem", "--version"],
-        "cargo": ["cargo", "--version"],
         "Gradle": ["gradle", "-version"],
         "Docker": ["docker", "--version"],
     },
@@ -51,7 +45,6 @@ COMPILATION_BENCHMARK_COMMANDS = {
     "C++": ["g++", "-o", "build_artifacts/hello_world_cpp", "cpp/hello_world.cpp"],
     "C#": ["dotnet", "build", "-o", "csharp/hello_world.csproj", "build_artifacts"],
     "Java": ["javac", "-d", "build_artifacts", "java/hello_world.java"],
-    "Kotlin": ["kotlinc", "-d", "build_artifacts", "kotlin/hello_world.kt"],
     "Rust": ["rustc", "-o", "build_artifacts/hello_world", "rust/hello_world.rs"],
     "Go": ["go", "build", "-o", "build_artifacts/hello_world_go", "go/hello_world.go"],
 }
