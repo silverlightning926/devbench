@@ -53,7 +53,7 @@ COMPILATION_BENCHMARK_COMMANDS = {
 def check_environment(cmd: list[str]) -> str:
     try:
         subprocess.run(cmd, env=os.environ,
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return "✅"
     except FileNotFoundError:
         return "❌"
@@ -63,7 +63,7 @@ def check_environments(env_type: str, table: Table):
     with Progress(TextColumn("[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
         task = progress.add_task(f"[green]Checking {env_type}...", total=len(
             DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type]))
-        for i, (env, cmd) in enumerate(DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type].items(), start=1):
+        for _, (env, cmd) in enumerate(DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS[env_type].items(), start=1):
             status = check_environment(cmd)
             table.add_row(env, status)
             progress.update(task, advance=1, description=f"[green]Checking {
@@ -119,26 +119,27 @@ def compile(iterations: int = 10, warmup: int = 3):
 
     with Progress(TextColumn(text_format="[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
         task = progress.add_task(
-            f"[green]Compiling", total=len(selected_languages) * (iterations + warmup))
+            f"[green]Compiling", total=(len(selected_languages) * (iterations + warmup)))
+        print(len(selected_languages) * (iterations + warmup))
         for language in selected_languages:
             for _ in range(warmup):
-                progress.update(task, advance=1,
-                                description=f"[green]Compiling {language} - Warmup {_ + 1}/{warmup}")
                 subprocess.run(COMPILATION_BENCHMARK_COMMANDS[language], env=os.environ,
                                cwd="./samples", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                clean_build_environment
+                clean_build_environment()
+                progress.update(task, advance=1,
+                                description=f"[green]Compiling {language} - Warmup {_ + 1}/{warmup}")
 
-            progress.update(task, advance=1)
             times = []
             for _ in range(iterations):
-                progress.update(task, advance=1,
-                                description=f"[green]Compiling {language} - Iteration {_ + 1}/{iterations}")
                 start = time.perf_counter_ns()
                 subprocess.run(COMPILATION_BENCHMARK_COMMANDS[language], env=os.environ,
                                cwd="./samples", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 end = time.perf_counter_ns()
                 times.append((end - start) / 1e9)
                 clean_build_environment()
+                progress.update(task, advance=1,
+                                description=f"[green]Compiling {language} - Iteration {_ + 1}/{iterations}")
+
             table.add_row(language, str(sum(times) / len(times)), str(iterations), str(min(times)),
                           str(max(times)), str(statistics.stdev(times)), str(statistics.variance(times)))
 
