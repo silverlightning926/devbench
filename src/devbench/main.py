@@ -8,7 +8,7 @@ from rich import print
 import subprocess
 import os
 from pyfiglet import Figlet
-from devbench.components.selection_list.selection_list import SelectionListApp
+from devbench.components.selection_list.selection_list import SelectionList
 
 __version__ = importlib.metadata.version('devbench')
 
@@ -42,6 +42,16 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
         "Gradle": ["gradle", "-version"],
         "Docker": ["docker", "--version"],
     },
+}
+
+COMPILATION_BENCHMARK_COMMANDS = {
+    "C": ["gcc", "-o", "test", "test.c"],
+    "C++": ["g++", "-o", "test", "test.cpp"],
+    "C#": ["dotnet", "build"],
+    "Java": ["javac", "Test.java"],
+    "Kotlin": ["kotlinc", "Test.kt"],
+    "Rust": ["rustc", "test.rs"],
+    "Go": ["go", "build", "test.go"],
 }
 
 
@@ -83,15 +93,12 @@ def doctor():
 def compile():
     typer.echo("Compilation Benchmark")
 
-    languages = list(
-        DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS["compilation"].keys())
+    languages = list(COMPILATION_BENCHMARK_COMMANDS.keys())
 
-    app = SelectionListApp(options=languages)
+    app = SelectionList(options=languages)
     app.run()
 
     selected_languages = app.get_selected()
-
-    # TODO: Implement Benchmarking Based on Selected Languages
 
 
 @app.command()
