@@ -120,7 +120,6 @@ def compile(iterations: int = 10, warmup: int = 3):
     with Progress(TextColumn(text_format="[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
         task = progress.add_task(
             f"[green]Compiling", total=(len(selected_languages) * (iterations + warmup)))
-        print(len(selected_languages) * (iterations + warmup))
         for language in selected_languages:
             for _ in range(warmup):
                 subprocess.run(COMPILATION_BENCHMARK_COMMANDS[language], env=os.environ,
