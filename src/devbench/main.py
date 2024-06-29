@@ -45,13 +45,13 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
 }
 
 COMPILATION_BENCHMARK_COMMANDS = {
-    "C": ["gcc", "-o", "test", "test.c"],
-    "C++": ["g++", "-o", "test", "test.cpp"],
+    "C": ["gcc", "-c", "hello_world.c"],
+    "C++": ["g++", "-c", "hello_world.cpp"],
     "C#": ["dotnet", "build"],
-    "Java": ["javac", "Test.java"],
-    "Kotlin": ["kotlinc", "Test.kt"],
-    "Rust": ["rustc", "test.rs"],
-    "Go": ["go", "build", "test.go"],
+    "Java": ["javac", "hello_world.java"],
+    "Kotlin": ["kotlinc", "hello_world.kt"],
+    "Rust": ["rustc", "hello_world.rs"],
+    "Go": ["go", "build", "hello_world.go"],
 }
 
 
@@ -90,12 +90,10 @@ def doctor():
 
 
 @app.command()
-def compile():
+def compile(iterations: int = 5):
     typer.echo("Compilation Benchmark")
 
     languages = list(COMPILATION_BENCHMARK_COMMANDS.keys())
-
-    print(languages)
 
     app = SelectionListApp(options=languages,
                            title="Choose a Language to Benchmark")
