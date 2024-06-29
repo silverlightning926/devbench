@@ -8,7 +8,7 @@ from rich import print
 import subprocess
 import os
 from pyfiglet import Figlet
-from devbench.components.selection_list.selection_list import SelectionList
+from devbench.components.selection_list.selection_list_app import SelectionListApp
 
 __version__ = importlib.metadata.version('devbench')
 
@@ -95,7 +95,10 @@ def compile():
 
     languages = list(COMPILATION_BENCHMARK_COMMANDS.keys())
 
-    app = SelectionList(options=languages)
+    print(languages)
+
+    app = SelectionListApp(options=languages,
+                           title="Choose a Language to Benchmark")
     app.run()
 
     selected_languages = app.get_selected()

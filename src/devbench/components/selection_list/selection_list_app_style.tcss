@@ -13,6 +13,7 @@ SelectionList {
   align-horizontal: center;
   width: 80%;
   color: #CF9FFF;
+  background: #000000;
 }
 
 Button {

@@ -6,14 +6,15 @@ from textual.events import Mount
 from textual.widgets.selection_list import Selection
 
 
-class SelectionList(App):
+class SelectionListApp(App):
 
-    CSS_PATH = "selection_list.tcss"
+    CSS_PATH = "selection_list_app_style.tcss"
 
-    def __init__(self, options: list[str]):
+    def __init__(self, options: list[str], title: str = "Choose an Option"):
         super().__init__()
         self.languages = options
         self.selected_options = []
+        self.title = title
 
     def compose(self) -> ComposeResult:
         selections = [Selection(language, language.lower().replace(
@@ -25,7 +26,7 @@ class SelectionList(App):
 
     def on_mount(self) -> None:
         self.query_one(
-            SelectionList).border_title = "Choose Which Languages to Benchmark (Compile)"
+            SelectionList).border_title = f"[b]{self.title}[/b]"
 
     @on(Mount)
     @on(SelectionList.SelectedChanged)
