@@ -102,7 +102,7 @@ def clean_build_environment():
 
 
 @app.command()
-def compile(iterations: int = 10):
+def compile(iterations: int = 10, warmup: int = 3):
 
     languages = list(COMPILATION_BENCHMARK_COMMANDS.keys())
 
@@ -125,8 +125,15 @@ def compile(iterations: int = 10):
 
     with Progress(TextColumn(text_format="[progress.description]{task.description}"), BarColumn(), TimeElapsedColumn(), transient=True) as progress:
         task = progress.add_task(
-            f"[green]Compiling", total=len(selected_languages) * iterations)
+            f"[green]Compiling", total=len(selected_languages) * (iterations + warmup))
         for language in selected_languages:
+            for _ in range(warmup):
+                progress.update(task, advance=1,
+                                description=f"[green]Compiling {language} - Warmup {_ + 1}/{warmup}")
+                subprocess.run(COMPILATION_BENCHMARK_COMMANDS[language], env=os.environ,
+                               cwd="./samples", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                clean_build_environment
+
             progress.update(task, advance=1)
             times = []
             for _ in range(iterations):
