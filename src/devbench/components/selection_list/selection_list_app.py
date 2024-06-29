@@ -17,8 +17,8 @@ class SelectionListApp(App):
         self.title = title
 
     def compose(self) -> ComposeResult:
-        selections = [Selection(language, language.lower().replace(
-            ' ', '_'), initial_state=True) for language in self.languages]
+        selections = [Selection(language, language, initial_state=True)
+                      for language in self.languages]
         yield Vertical(
             SelectionList[str](*selections),
             Button(label="Confirm", id="confirm_button")
