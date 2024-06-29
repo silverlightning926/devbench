@@ -41,12 +41,12 @@ DOCTOR_COMMAND_ENVIRONMENT_CHECK_COMMANDS = {
 }
 
 COMPILATION_BENCHMARK_COMMANDS = {
-    "C": ["gcc", "-o", "build_artifacts/hello_world_c", "c/hello_world.c"],
-    "C++": ["g++", "-o", "build_artifacts/hello_world_cpp", "cpp/hello_world.cpp"],
-    "C#": ["dotnet", "build", "-o", "build_artifacts", "csharp/hello_world.csproj"],
-    "Java": ["javac", "-d", "build_artifacts", "java/hello_world.java"],
-    "Rust": ["rustc", "-o", "build_artifacts/hello_world", "rust/hello_world.rs"],
-    "Go": ["go", "build", "-o", "build_artifacts/hello_world_go", "go/hello_world.go"],
+    "C (gcc)": ["gcc", "-o", "build_artifacts/hello_world_c", "c/hello_world.c"],
+    "C++ (g++)": ["g++", "-o", "build_artifacts/hello_world_cpp", "cpp/hello_world.cpp"],
+    "C# (dotnet)": ["dotnet", "build", "-o", "build_artifacts", "csharp/hello_world.csproj"],
+    "Java (javac)": ["javac", "-d", "build_artifacts", "java/hello_world.java"],
+    "Rust (rustc)": ["rustc", "-o", "build_artifacts/hello_world", "rust/hello_world.rs"],
+    "Go (gc)": ["go", "build", "-o", "build_artifacts/hello_world_go", "go/hello_world.go"],
 }
 
 
