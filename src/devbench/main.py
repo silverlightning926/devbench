@@ -108,7 +108,7 @@ def compile(iterations: int = 15, warmup: int = 3):
 
     table = Table(title="Compilation Benchmark", title_justify="left")
     table.add_column("Language (Compiler)")
-    table.add_column("Iterations")
+    table.add_column("(Warmup) + Iterations")
     table.add_column("Average Time (s)")
     table.add_column("Minimum Time (s)")
     table.add_column("Maximum Time (s)")
@@ -140,7 +140,7 @@ def compile(iterations: int = 15, warmup: int = 3):
                                 description=f"[green]Compiling {language} - Iteration {_ + 1}/{iterations}")
 
             table.add_row(language,
-                          str(iterations),
+                          f"({warmup}) + {iterations}",
                           f"{sum(times) / len(times):.6f}",
                           f"{min(times):.6f}",
                           f"{max(times):.6f}",
